@@ -1,0 +1,82 @@
+package ${packageName}.common.config;
+
+import com.github.pagehelper.PageInterceptor;
+import ${packageName}.common.dao.ReadDao;
+import ${packageName}.common.dao.WriteDao;
+import ${packageName}.common.dao.impl.mybatis.ReadDaoMybatisImpl;
+import ${packageName}.common.dao.impl.mybatis.WriteDaoMybatisImpl;
+import ${packageName}.common.util.StringUtils;
+import org.apache.ibatis.plugin.Interceptor;
+import org.mybatis.spring.SqlSessionFactoryBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+
+import javax.sql.DataSource;
+import java.io.IOException;
+import java.util.Properties;
+
+/**
+ * @author CODE-GENERATOR
+ * @date ${now}
+ */
+@Configuration
+public class DataSourceConfig {
+
+    private static final Logger log = LoggerFactory.getLogger(DataSourceConfig.class);
+
+    @Value("${mybatis.mapperLocation}")
+    private String mapperLocation;
+
+    @Bean
+    public SqlSessionFactoryBean sqlSessionFactoryBean(DataSource dataSource) throws IOException {
+        SqlSessionFactoryBean factoryBean = new SqlSessionFactoryBean();
+        factoryBean.setDataSource(dataSource);
+        if (StringUtils.isInvalid(mapperLocation)) {
+            throw new RuntimeException(">>> mapper directory is invalid -> " + mapperLocation);
+        }
+        PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+        factoryBean.setMapperLocations(resolver.getResources(mapperLocation));
+        factoryBean.setPlugins(new Interceptor[]{this.pageHelper()});
+        return factoryBean;
+    }
+
+    private Interceptor pageHelper() {
+        PageInterceptor interceptor = new PageInterceptor();
+
+        Properties properties = new Properties();
+        properties.setProperty("offsetAsPageNum", "true");
+        properties.setProperty("rowBoundsWithCount", "true");
+        properties.setProperty("pageSizeZero", "true");
+
+        interceptor.setProperties(properties);
+        return interceptor;
+    }
+
+    @Bean
+    public ReadDao readDao(SqlSessionFactoryBean factoryBean) {
+        ReadDaoMybatisImpl readDao = new ReadDaoMybatisImpl();
+        try {
+            readDao.setSqlSessionFactory(factoryBean.getObject());
+        } catch (Exception e) {
+            log.error(">>> Error of register [readDao]", e);
+        }
+        return readDao;
+    }
+
+    @Bean
+    public WriteDao writeDao(SqlSessionFactoryBean factoryBean) {
+        WriteDaoMybatisImpl writeDao = new WriteDaoMybatisImpl();
+        try {
+            writeDao.setSqlSessionFactory(factoryBean.getObject());
+        } catch (Exception e) {
+            log.error(">>> Error of registering [writerDao]", e);
+        }
+        return writeDao;
+    }
+
+
+}
