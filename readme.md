@@ -12,4 +12,8 @@ a maven plugin to generate rest crud api
 
 如何使用?
 
+git clone https://github.com/xiaoyureed/rest-api-maven-plugin.git
+cd rest-api-maven-plugin
+mvn clean install
+
 ```
