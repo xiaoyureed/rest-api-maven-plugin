@@ -1,7 +1,5 @@
 package ${packageName}.pojo.dto;
 
-import lombok.Data;
-
 #foreach(${fullTypeName} in ${fullTypeNames})
 import ${fullTypeName};
 #end
@@ -12,7 +10,6 @@ import ${fullTypeName};
 * @author CODE-GENERATOR
 * @since ${now}
 */
-@Data
 public class ${domainWithUppercase}F01ReqM01 {
 #foreach(${key} in ${columnTypeMap.keySet()})
     private ${columnTypeMap.get(${key})} ${key};

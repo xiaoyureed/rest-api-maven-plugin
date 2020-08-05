@@ -28,7 +28,7 @@ public class DataSourceConfig {
 
     private static final Logger log = LoggerFactory.getLogger(DataSourceConfig.class);
 
-    @Value("${mybatis.mapperLocation}")
+    @Value("${${mapperLocations}}")
     private String mapperLocation;
 
     @Bean

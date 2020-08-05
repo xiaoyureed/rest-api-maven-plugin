@@ -19,6 +19,8 @@ public class GlobalConfig {
         return Holder.me;
     }
 
+    public String mapperLocations;
+
     public String basePackage;
 
     public String jdbcUrl;

@@ -21,6 +21,9 @@ public class RestApiMojo extends AbstractMojo {
 
     private final Log log = getLog();
 
+    @Parameter(property = "mapperLocations", defaultValue = "mybatis.mapper-locations")
+    private String mapperLocations;
+
     @Parameter(property = "basePackage")
     private String basePackage;
 
@@ -53,6 +56,7 @@ public class RestApiMojo extends AbstractMojo {
     private void initConfig() {
         GlobalConfig result = GlobalConfig.me();
 
+        result.mapperLocations = mapperLocations;
         result.basePackage = basePackage;
         result.jdbcUrl = jdbcUrl;
         result.driverClassName = driverClassName;

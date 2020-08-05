@@ -49,6 +49,8 @@ public class VelocityCodeGeneratorImpl implements ICodeGenerator {
         context.put("domain", config.domainName);
         context.put("domainWithUppercase", StringUtils.uppercaseFirstLetter(config.domainName));
         context.put("now", LocalDate.now().toString());
+
+        context.put("mapperLocations", config.mapperLocations);
     }
 
     @Override
