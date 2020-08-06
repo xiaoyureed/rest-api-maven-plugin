@@ -51,6 +51,34 @@ public class VelocityCodeGeneratorImpl implements ICodeGenerator {
         context.put("now", LocalDate.now().toString());
 
         context.put("mapperLocations", config.mapperLocations);
+
+        // 用于生成 mapper 中的 SQL 字段
+        //key - 字段名, value - field名
+        final Map<String, String> columnFieldMap = new LinkedHashMap<>();
+        FIELDS_RAW.keySet().stream()
+                .filter(s -> !s.equalsIgnoreCase("id") // 排除id字段
+                        && !s.equalsIgnoreCase("is_del")) // 排除 is_del
+                .collect(Collectors.toList())
+                .forEach(column -> columnFieldMap.put(column, StringUtils.convertToCamel(column)));
+        context.put("columnFieldMap", columnFieldMap);
+        context.put("table", config.tableName);
+
+        // 用于生成 imports
+        final List<String> fullTypeNames = FIELDS_RAW.values().stream()
+                // 过滤掉 string 和 long 类型, 因为无需显式导入
+                .filter(s -> !s.contains("String") && !s.contains("Long"))
+                .distinct().collect(Collectors.toList());
+        context.put("fullTypeNames", new HashSet<>(fullTypeNames));
+
+        // 用于生成 fields
+        // key 为字段名, value 为 类型
+        final HashMap<String, String> columnTypeMap = new HashMap<>(10);
+        FIELDS_RAW.forEach((columnName, fullTypeName) -> {
+            if (!columnName.equalsIgnoreCase("is_del")) {
+                columnTypeMap.put(StringUtils.convertToCamel(columnName), StringUtils.getNameFromFullName(fullTypeName));
+            }
+        });
+        context.put("columnTypeMap", columnTypeMap);
     }
 
     @Override
@@ -92,23 +120,6 @@ public class VelocityCodeGeneratorImpl implements ICodeGenerator {
     }
 
     private void dto() {
-        // 用于生成 imports
-        final List<String> fullTypeNames = FIELDS_RAW.values().stream()
-                // 过滤掉 string 和 long 类型, 因为无需显式导入
-                .filter(s -> !s.contains("String") && !s.contains("Long"))
-                .distinct().collect(Collectors.toList());
-        context.put("fullTypeNames", new HashSet<>(fullTypeNames));
-
-        // 用于生成 fields
-        // key 为字段名, value 为 类型
-        final HashMap<String, String> columnTypeMap = new HashMap<>(10);
-        FIELDS_RAW.forEach((columnName, fullTypeName) -> {
-            if (!columnName.equalsIgnoreCase("is_del")) {
-                columnTypeMap.put(StringUtils.convertToCamel(columnName), StringUtils.getNameFromFullName(fullTypeName));
-            }
-        });
-        context.put("columnTypeMap", columnTypeMap);
-
         // f01 related dto
         writeWithTailName("template/pojo/dto/F01Req.vm", PathUtils.pojoDtoPath(), "F01ReqM01.java");
         writeWithTailName("template/pojo/dto/F01Resp.vm", PathUtils.pojoDtoPath(), "F01RespM01.java");
@@ -133,17 +144,6 @@ public class VelocityCodeGeneratorImpl implements ICodeGenerator {
     }
 
     private void mapper() {
-        // 用于生成 mapper 中的 SQL 字段
-        //key - 字段名, value - field名
-        final Map<String, String> columnFieldMap = new LinkedHashMap<>();
-        FIELDS_RAW.keySet().stream()
-                .filter(s -> !s.equalsIgnoreCase("id") // 排除id字段
-                        && !s.equalsIgnoreCase("is_del")) // 排除 is_del
-                .collect(Collectors.toList())
-                .forEach(column -> columnFieldMap.put(column, StringUtils.convertToCamel(column)));
-        context.put("columnFieldMap", columnFieldMap);
-        context.put("table", config.tableName);
-
         writeWithTailName("template/mapper/F01Mapper.vm", PathUtils.mapperPath(), "F01Mapper.xml");
         writeWithTailName("template/mapper/F02Mapper.vm", PathUtils.mapperPath(), "F02Mapper.xml");
         writeWithTailName("template/mapper/F03Mapper.vm", PathUtils.mapperPath(), "F03Mapper.xml");

@@ -1,22 +1,28 @@
-```
-a maven plugin to generate rest crud api
+## 特性
+
+生成的代码:
 
 - 自带全局异常处理
 - hibernate validation
 - 跨域处理
 - 数据访问层分为读操作写操作, 方便实施读写分离
 - 自带分页
-- 使用 ThreadLocal 从 controller 中剥离了业务无关的参数
+- 使用 ThreadLocal 剥离了业务无关的参数
 
-代码生成用到了 velocity 模板
 
-如何使用?
 
-git clone https://github.com/xiaoyureed/rest-api-maven-plugin.git
+## quickstart
+
+```shell script
+git clone --depth=1 https://github.com/xiaoyureed/rest-api-maven-plugin.git
 cd rest-api-maven-plugin
 mvn clean install
 
-创建新的 springboot 项目, 引入 plugin:
+```
+
+创建新的 springboot 项目, 引入 plugin, 修改 jdbcUrl, username, password, domainName & tableName , 然后执行 `mvn rest-api:generate`
+
+```xml
 
 <plugin>
     <groupId>io.github.xiaoyureed</groupId>
@@ -32,17 +38,9 @@ mvn clean install
         <tableName>account</tableName>
     </configuration>
 </plugin>
-
-修改 jdbcUrl, username, password, domainName & tableName , 然后执行:
-
-mvn rest-api:generate
-
-
-
-只适配了 MySQL
 ```
 
-引入必要的依赖: (后面会将 pom 也自动生成, 现在暂时手动添加)
+完整的 pom 如下: 
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -135,7 +133,9 @@ mvn rest-api:generate
     </build>
 </project>
 
-
-
 ```
 
+## todolist
+
+- 自动生成 pom
+- 适配 postgres
