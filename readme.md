@@ -1,3 +1,5 @@
+a maven plugin to generate rest crud api. you can modify the template to fit your own business requirement.
+
 ## 特性
 
 生成的代码:
